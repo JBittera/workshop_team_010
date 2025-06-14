@@ -5,11 +5,15 @@ import math
 from settings import (
     SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
-    BACKGROUND_IMAGE_PATH, player_animation_paths
+    player_animation_paths,
+    STONE_IMAGE_PATH, STONE_SIZE,
+    CURRENT_MAP_SETTING_NAME
 )
 from utils import load_image, random_player1_start_position, random_player2_start_position
 from player import Player
 from bullet import Bullet
+from stone import Stone
+from mapSettings import MAP_SETTINGS
 
 pygame.init()
 
@@ -17,9 +21,11 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter (2 Players)")
 
-background_image = load_image(BACKGROUND_IMAGE_PATH, (SCREEN_WIDTH, SCREEN_HEIGHT))
-bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
+chosen_map = MAP_SETTINGS[CURRENT_MAP_SETTING_NAME]
 
+background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
+bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
+stone_image = load_image(STONE_IMAGE_PATH, STONE_SIZE)
 game_icon = load_image(GAME_ICON_PATH)
 if game_icon:
     pygame.display.set_icon(game_icon)
@@ -72,6 +78,11 @@ all_sprites.add(player1, player2)
 
 bullets = pygame.sprite.Group()
 
+stone_group = pygame.sprite.Group()
+if stone_image:
+    for pos_x, pos_y in chosen_map["stone_positions"]:
+        stone_group.add(Stone(pos_x, pos_y, stone_image))
+
 font = pygame.font.Font(None, 36)
 
 running = True
@@ -109,7 +120,7 @@ while running:
 
     # MENU SCREEN
     if game_menu:
-        
+
 
         screen.blit(background_image, (0, 0))
 
@@ -134,7 +145,7 @@ while running:
                         print("Výběr mapy zatím není implementován.")
                     elif selected_index == 2:
                         running = False
-                elif event.key == pygame.K_UP: 
+                elif event.key == pygame.K_UP:
                     selected_index = (selected_index - 1) % len(menu_items)
                 elif event.key == pygame.K_DOWN:
                     selected_index = (selected_index + 1) % len(menu_items)
@@ -188,19 +199,19 @@ while running:
                             all_sprites.add(bullet)
                             bullets.add(bullet)
 
-        if not game_over:
-            keys = pygame.key.get_pressed()
-            player1.update(keys, current_time)
-            player2.update(keys, current_time)
-            bullets.update()
+    if not game_over:
+        keys = pygame.key.get_pressed()
+        player1.update(keys, current_time, stone_group)
+        player2.update(keys, current_time, stone_group)
+        bullets.update()
 
-            hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
-            for hit in hits_player1:
-                player1.health -= 10
-                if player1.health <= 0:
-                    player1.health = 0
-                    game_over = True
-                    winner_text = "Player 2 Wins!"
+        hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
+        for hit in hits_player1:
+            player1.health -= 10
+            if player1.health <= 0:
+                player1.health = 0
+                game_over = True
+                winner_text = "Player 2 Wins!"
 
             hits_player2 = pygame.sprite.spritecollide(player2, bullets, True)
             for hit in hits_player2:
@@ -214,52 +225,51 @@ while running:
         screen.blit(background_image, (0, 0))
 
 
-        all_sprites.draw(screen)
+    all_sprites.draw(screen)
 
-        player1.draw_health_bar(screen)
-        player2.draw_health_bar(screen)
+    player1.draw_health_bar(screen)
+    player2.draw_health_bar(screen)
 
-        player1_health_text = font.render(f"{player1.name}: {player1.health}", True, WHITE)
-        screen.blit(player1_health_text, (10, 10))
-        player2_health_text = font.render(f"{player2.name}: {player2.health}", True, WHITE)
-        screen.blit(player2_health_text, (SCREEN_WIDTH - player2_health_text.get_width() - 10, 10))
-
-
-        if game_over:
-            game_over_font = pygame.font.Font(None, 74)
-            winner_display = game_over_font.render(winner_text, True, YELLOW)
-            winner_rect = winner_display.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
-            screen.blit(winner_display, winner_rect)
-
-            restart_font = pygame.font.Font(None, 48)
-            restart_text = restart_font.render("Press R to Restart", True, WHITE)
-            restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))
-            screen.blit(restart_text, restart_rect)
-
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_r]:
-                game_over = False
-                player1.health = 100
-                player2.health = 100
+    player1_health_text = font.render(f"{player1.name}: {player1.health}", True, WHITE)
+    screen.blit(player1_health_text, (10, 10))
+    player2_health_text = font.render(f"{player2.name}: {player2.health}", True, WHITE)
+    screen.blit(player2_health_text, (SCREEN_WIDTH - player2_health_text.get_width() - 10, 10))
 
 
-                player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
-                player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
+    if game_over:
+        game_over_font = pygame.font.Font(None, 74)
+        winner_display = game_over_font.render(winner_text, True, YELLOW)
+        winner_rect = winner_display.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
+        screen.blit(winner_display, winner_rect)
 
-                for bullet in bullets:
-                    bullet.kill()
-                bullets.empty()
+        restart_font = pygame.font.Font(None, 48)
+        restart_text = restart_font.render("Press R to Restart", True, WHITE)
+        restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))
+        screen.blit(restart_text, restart_rect)
 
-                if player1.animation_frames[player1.direction]:
-                    player1.current_frame_index = 0
-                    player1.image = player1.animation_frames[player1.direction][player1.current_frame_index]
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_r]:
+            game_over = False
+            player1.health = 100
+            player2.health = 100
 
-                if player2.animation_frames[player2.direction]:
-                    player2.current_frame_index = 0
-                    player2.image = player2.animation_frames[player2.direction][player2.current_frame_index]
 
-        pygame.display.flip()
+            player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+            player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
 
-        clock.tick(FPS)
+            for bullet in bullets:
+                bullet.kill()
+            bullets.empty()
 
+        if player1.animation_frames[player1.direction]:
+            player1.current_frame_index = 0
+            player1.image = player1.animation_frames[player1.direction][player1.current_frame_index]
+
+            if player2.animation_frames[player2.direction]:
+                player2.current_frame_index = 0
+                player2.image = player2.animation_frames[player2.direction][player2.current_frame_index]
+
+    pygame.display.flip()
+
+    clock.tick(FPS)
 pygame.quit()
