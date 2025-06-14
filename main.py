@@ -365,12 +365,12 @@ while running:
 
     screen.blit(background_image, (0, 0))
 
+    player1.draw_health_bar(screen)
+    player2.draw_health_bar(screen)
+
     all_sprites.draw(screen)
 
     if box: box.draw(screen)
-
-    player1.draw_health_bar(screen)
-    player2.draw_health_bar(screen)
 
 
     player1_text = font.render(f"{player1.name}: {player1.bullets_count}", True, WHITE)
