@@ -1,6 +1,6 @@
 import pygame
 import math
-from settings import SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, PLAYER_SPEED, PLAYER_HEALTH, PLAYER_SHOOT_COOLDOWN, \
+from settings import PLAYER_INITIAL_BULLETS_COUNT, SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, PLAYER_SPEED, PLAYER_HEALTH, PLAYER_SHOOT_COOLDOWN, \
     PLAYER_SIZE
 
 
@@ -24,6 +24,7 @@ class Player(pygame.sprite.Sprite):
 
         self.speed = PLAYER_SPEED
         self.health = PLAYER_HEALTH
+        self.bullets_count = PLAYER_INITIAL_BULLETS_COUNT
         self.controls = controls
         self.name = name
         self.last_shot_time = 0
@@ -75,7 +76,8 @@ class Player(pygame.sprite.Sprite):
     def shoot(self, current_time, bullet_img):
         from bullet import Bullet
 
-        if current_time - self.last_shot_time > self.shoot_cooldown:
+        if current_time - self.last_shot_time > self.shoot_cooldown and self.bullets_count > 0:
+            self.bullets_count -= 1
             self.last_shot_time = current_time
 
             bullet_spawn_offset_x = self.rect.width / 2 + 5

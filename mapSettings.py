@@ -14,7 +14,8 @@ MAP_SETTINGS = {
         ],
         "small_stone_image_path": "images/maps/map_1/objects/small_rock.png",
         "big_stone_image_path": "images/maps/map_1/objects/big_rock.png",
-        "bush_image_path": "images/maps/map_1/objects/bush.png"
+        "bush_image_path": "images/maps/map_1/objects/bush.png",
+        "box_image_path": "images/maps/map_1/objects/box.png",
     },
     "Deadwood": {
         "background_image_path": "images/maps/map_2/map/background.png",
@@ -30,7 +31,8 @@ MAP_SETTINGS = {
         ],
         "small_stone_image_path": "images/maps/map_2/objects/small_rock.png",
         "big_stone_image_path": "images/maps/map_2/objects/big_rock.png",
-        "bush_image_path": "images/maps/map_2/objects/bush.png"
+        "bush_image_path": "images/maps/map_2/objects/bush.png",
+        "box_image_path": "images/maps/map_2/objects/box.png"
     },
     "Cyberpark": {
         "background_image_path": "images/maps/map_3/map/background.png",
@@ -46,6 +48,7 @@ MAP_SETTINGS = {
         ],
         "small_stone_image_path": "images/maps/map_3/objects/small_rock.png",
         "big_stone_image_path": "images/maps/map_3/objects/big_rock.png",
-        "bush_image_path": "images/maps/map_3/objects/bush.png"
+        "bush_image_path": "images/maps/map_3/objects/bush.png",
+        "box_image_path": "images/maps/map_3/objects/box.png"
     }
 }

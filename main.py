@@ -1,9 +1,10 @@
 import pygame
 import math
+from box import Box
 import settings
 
 from settings import (
-    BUSH_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
+    BOX_BULLETS_COUNT, BOX_SIZE, BOX_SPAWN_DELAY, BUSH_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
     STONE_SIZE_SMALL,
     STONE_SIZE_BIG,
@@ -29,7 +30,9 @@ bullet_image = load_image(BULLET_IMAGE_PATH,(10, 10))
 stone_small_image = None
 stone_big_image = None
 bush_image = None
+box_image = None
 
+NEW_BOX_EVENT = pygame.USEREVENT + 1
 game_icon = load_image(GAME_ICON_PATH)
 if game_icon:
     pygame.display.set_icon(game_icon)
@@ -90,7 +93,7 @@ player2_controls = {
 player2 = Player(0, 0, player2_controls, "Player 2", player2_animation_frames)
 
 def _switch_map_assets(map_name):
-    global background_image, stone_small_image, stone_big_image, bush_image, obstacles
+    global background_image, stone_small_image, stone_big_image, bush_image, obstacles, box, box_image
 
     settings.CURRENT_MAP_SETTING_NAME = map_name
     chosen_map = MAP_SETTINGS[settings.CURRENT_MAP_SETTING_NAME]
@@ -99,6 +102,7 @@ def _switch_map_assets(map_name):
     stone_small_image = load_image(chosen_map["small_stone_image_path"], STONE_SIZE_SMALL)
     stone_big_image = load_image(chosen_map["big_stone_image_path"], STONE_SIZE_BIG)
     bush_image = load_image(chosen_map["bush_image_path"], BUSH_SIZE)
+    box_image = load_image(chosen_map["box_image_path"], BOX_SIZE)
 
     stone_group.empty()
     bush_group.empty()
@@ -118,6 +122,8 @@ def _switch_map_assets(map_name):
     all_sprites.empty()
     all_sprites.add(player1, player2, stone_group, bush_group)
 
+    box = Box(box_image, all_sprites)
+
 
 _switch_map_assets(settings.CURRENT_MAP_SETTING_NAME)
 
@@ -134,6 +140,8 @@ player2.rect.center = no_collision(random_player2_start_position, obstacles)
 bullets = pygame.sprite.Group()
 
 font = pygame.font.Font(None, 36)
+
+box = None
 
 running = True
 game_start = True
@@ -191,6 +199,7 @@ while running:
                         player2.health = 100
                         player1.rect.center = no_collision(random_player1_start_position, obstacles)
                         player2.rect.center = no_collision(random_player2_start_position, obstacles)
+                        game_over = False
                         for bullet in bullets:
                             bullet.kill()
                         bullets.empty()
@@ -313,6 +322,9 @@ while running:
                         if bullet:
                             all_sprites.add(bullet)
                             bullets.add(bullet)
+            elif event.type == NEW_BOX_EVENT:
+                box = Box(box_image, all_sprites)
+
 
     if not game_over:
         keys = pygame.key.get_pressed()
@@ -321,6 +333,19 @@ while running:
         bullets.update()
 
         pygame.sprite.groupcollide(bullets, stone_group, True, False)
+
+
+        if box:
+            if pygame.sprite.collide_rect(player1, box):
+                player1.bullets_count += BOX_BULLETS_COUNT
+                box.kill()
+                box = None
+            elif pygame.sprite.collide_rect(player2, box):
+                player2.bullets_count += BOX_BULLETS_COUNT
+                box.kill()
+                box = None
+            if not box:
+                pygame.time.set_timer(NEW_BOX_EVENT, BOX_SPAWN_DELAY, 1)
 
         hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
         for hit in hits_player1:
@@ -342,14 +367,16 @@ while running:
 
     all_sprites.draw(screen)
 
+    if box: box.draw(screen)
+
     player1.draw_health_bar(screen)
     player2.draw_health_bar(screen)
 
 
-    player1_health_text = font.render(f"{player1.name}: {player1.health}", True, WHITE)
-    screen.blit(player1_health_text, (10, 10))
-    player2_health_text = font.render(f"{player2.name}: {player2.health}", True, WHITE)
-    screen.blit(player2_health_text, (SCREEN_WIDTH - player2_health_text.get_width() - 10, 10))
+    player1_text = font.render(f"{player1.name}: {player1.bullets_count}", True, WHITE)
+    screen.blit(player1_text, (10, 10))
+    player2_text = font.render(f"{player2.name}: {player2.bullets_count}", True, WHITE)
+    screen.blit(player2_text, (SCREEN_WIDTH - player2_text.get_width() - 10, 10))
 
     if game_over:
         game_over_font = pygame.font.Font(None, 74)
