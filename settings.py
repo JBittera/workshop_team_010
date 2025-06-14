@@ -30,13 +30,17 @@ PLAYER2_SPRITESHEET_PATH = "images/player_sprites/player2_spritesheet.png"
 player_animation_data = {
     'player1': {
         'row': 0,
+        'down_start_frame': 0,
         'left_start_frame': 3,
+        'up_start_frame': 6,
         'right_start_frame': 9,
         'num_frames': 3
     },
     'player2': {
         'row': 0,
+        'down_start_frame': 0,
         'left_start_frame': 3,
+        'up_start_frame': 6,
         'right_start_frame': 9,
         'num_frames': 3
     }

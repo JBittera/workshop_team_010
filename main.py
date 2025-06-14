@@ -38,12 +38,28 @@ if game_icon:
     pygame.display.set_icon(game_icon)
 
 player1_animation_frames = {
+    'down': load_frames_from_spritesheet(
+        PLAYER1_SPRITESHEET_PATH,
+        PLAYER_FRAME_WIDTH,
+        PLAYER_FRAME_HEIGHT,
+        player_animation_data['player1']['row'],
+        player_animation_data['player1']['down_start_frame'],
+        player_animation_data['player1']['num_frames']
+    ),
     'left': load_frames_from_spritesheet(
         PLAYER1_SPRITESHEET_PATH,
         PLAYER_FRAME_WIDTH,
         PLAYER_FRAME_HEIGHT,
         player_animation_data['player1']['row'],
         player_animation_data['player1']['left_start_frame'],
+        player_animation_data['player1']['num_frames']
+    ),
+    'up': load_frames_from_spritesheet(
+        PLAYER1_SPRITESHEET_PATH,
+        PLAYER_FRAME_WIDTH,
+        PLAYER_FRAME_HEIGHT,
+        player_animation_data['player1']['row'],
+        player_animation_data['player1']['up_start_frame'],
         player_animation_data['player1']['num_frames']
     ),
     'right': load_frames_from_spritesheet(
@@ -57,12 +73,28 @@ player1_animation_frames = {
 }
 
 player2_animation_frames = {
+    'down': load_frames_from_spritesheet(
+        PLAYER2_SPRITESHEET_PATH,
+        PLAYER_FRAME_WIDTH,
+        PLAYER_FRAME_HEIGHT,
+        player_animation_data['player2']['row'],
+        player_animation_data['player2']['down_start_frame'],
+        player_animation_data['player2']['num_frames']
+    ),
     'left': load_frames_from_spritesheet(
         PLAYER2_SPRITESHEET_PATH,
         PLAYER_FRAME_WIDTH,
         PLAYER_FRAME_HEIGHT,
         player_animation_data['player2']['row'],
         player_animation_data['player2']['left_start_frame'],
+        player_animation_data['player2']['num_frames']
+    ),
+    'up': load_frames_from_spritesheet(
+        PLAYER2_SPRITESHEET_PATH,
+        PLAYER_FRAME_WIDTH,
+        PLAYER_FRAME_HEIGHT,
+        player_animation_data['player2']['row'],
+        player_animation_data['player2']['up_start_frame'],
         player_animation_data['player2']['num_frames']
     ),
     'right': load_frames_from_spritesheet(
