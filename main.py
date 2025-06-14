@@ -3,16 +3,17 @@ import math
 
 
 from settings import (
-    SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
+    BUSH_IMAGE_PATH, BUSH_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
     player_animation_paths,
     STONE_IMAGE_PATH, STONE_SIZE,
     CURRENT_MAP_SETTING_NAME
 )
-from utils import load_image, random_player1_start_position, random_player2_start_position
+from utils import load_image, no_collision, random_player1_start_position, random_player2_start_position
 from player import Player
 from bullet import Bullet
 from stone import Stone
+from bush import Bush
 from mapSettings import MAP_SETTINGS
 
 pygame.init()
@@ -26,6 +27,7 @@ chosen_map = MAP_SETTINGS[CURRENT_MAP_SETTING_NAME]
 background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
 bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
 stone_image = load_image(STONE_IMAGE_PATH, STONE_SIZE)
+bush_image = load_image(BUSH_IMAGE_PATH, BUSH_SIZE)
 game_icon = load_image(GAME_ICON_PATH)
 if game_icon:
     pygame.display.set_icon(game_icon)
@@ -49,11 +51,24 @@ for i in range(1, 5):
 
 clock = pygame.time.Clock()
 
+all_sprites = pygame.sprite.Group()
+stone_group = pygame.sprite.Group()
+if stone_image:
+    for pos_x, pos_y in chosen_map["stone_positions"]:
+        stone_group.add(Stone(pos_x, pos_y, stone_image))
+all_sprites.add(stone_group)
+
+bush_group = pygame.sprite.Group()
+if bush_image:
+    for pos_x, pos_y in chosen_map["bush_positions"]:
+        bush_group.add(Bush(pos_x, pos_y, bush_image))
+
+
 player_rect = frame_left.get_rect()
 screen_rect = screen.get_rect()
 
-player1_start_x, player1_start_y = random_player1_start_position()
-player2_start_x, player2_start_y = random_player2_start_position()
+player1_start_x, player1_start_y = no_collision(random_player1_start_position, bush_group)
+player2_start_x, player2_start_y = no_collision(random_player2_start_position, bush_group)
 
 player1_controls = {
     'up': pygame.K_w,
@@ -73,15 +88,9 @@ player2_controls = {
 }
 player2 = Player(player2_start_x, player2_start_y, player2_controls, "Player 2", player_animation_frames)
 
-all_sprites = pygame.sprite.Group()
 all_sprites.add(player1, player2)
 
 bullets = pygame.sprite.Group()
-
-stone_group = pygame.sprite.Group()
-if stone_image:
-    for pos_x, pos_y in chosen_map["stone_positions"]:
-        stone_group.add(Stone(pos_x, pos_y, stone_image))
 
 font = pygame.font.Font(None, 36)
 
@@ -98,12 +107,12 @@ start_time = pygame.time.get_ticks()  # <- čas spuštění hry
 
 while running:
     current_time = pygame.time.get_ticks()
-    
+
     # ÚVODNÍ SCREEN
     if game_start:
         screen.blit(background_image, (0, 0))
-        
-       
+
+
         title_font = pygame.font.Font("fonts/PressStart2P.ttf", 45)  # menší velikost = víc "pixelově"
         title_text = title_font.render("BULÁNCI 010", False, WHITE)  # False = bez vyhlazování
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 150))
@@ -229,6 +238,8 @@ while running:
 
     player1.draw_health_bar(screen)
     player2.draw_health_bar(screen)
+
+    bush_group.draw(screen)
 
     player1_health_text = font.render(f"{player1.name}: {player1.health}", True, WHITE)
     screen.blit(player1_health_text, (10, 10))
