@@ -74,100 +74,178 @@ bullets = pygame.sprite.Group()
 font = pygame.font.Font(None, 36)
 
 running = True
+game_start = True
+game_menu = False
 game_over = False
 winner_text = ""
+selected_index = 0  # výběr pomocí kláves i myši
+
+start_time = pygame.time.get_ticks()  # <- čas spuštění hry
 
 while running:
     current_time = pygame.time.get_ticks()
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if not game_over:
-                if event.key == player1_controls['shoot']:
-                    bullet = player1.shoot(current_time, bullet_image)
-                    if bullet:
-                        all_sprites.add(bullet)
-                        bullets.add(bullet)
-                if event.key == player2_controls['shoot']:
-                    bullet = player2.shoot(current_time, bullet_image)
-                    if bullet:
-                        all_sprites.add(bullet)
-                        bullets.add(bullet)
-
-    if not game_over:
-        keys = pygame.key.get_pressed()
-        player1.update(keys, current_time)
-        player2.update(keys, current_time)
-        bullets.update()
-
-        hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
-        for hit in hits_player1:
-            player1.health -= 10
-            if player1.health <= 0:
-                player1.health = 0
-                game_over = True
-                winner_text = "Player 2 Wins!"
-
-        hits_player2 = pygame.sprite.spritecollide(player2, bullets, True)
-        for hit in hits_player2:
-            player2.health -= 10
-            if player2.health <= 0:
-                player2.health = 0
-                game_over = True
-                winner_text = "Player 1 Wins!"
+    if game_start:
+        screen.blit(background_image, (0, 0))
+        
+       
+        title_font = pygame.font.Font("fonts\PressStart2P.ttf", 45)  # menší velikost = víc "pixelově"
+        title_text = title_font.render("BULÁNCI 010", False, WHITE)  # False = bez vyhlazování
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 150))
+        screen.blit(title_text, title_rect)
 
 
-    screen.blit(background_image, (0, 0))
+        if current_time - start_time >= 3000:
+            game_start = False
+            game_menu = True
+
+        pygame.display.flip()
+        clock.tick(FPS)
+        continue
+
+    if game_menu:
+        
+
+        screen.blit(background_image, (0, 0))
+
+        menu_font = pygame.font.Font("fonts\\PressStart2P.ttf", 24)
+        menu_items = ["Hrát", "Výběr mapy", "Konec hry"]
+        menu_rects = []  # pro ukládání pozic jednotlivých položek
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_clicked = False
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:# pohyb v menu pomocí kláves
+                if event.key == pygame.K_RETURN: #= enter
+                    if selected_index == 0:
+                        game_menu = False
+                    elif selected_index == 1:
+                        print("Výběr mapy zatím není implementován.")
+                    elif selected_index == 2:
+                        running = False
+                elif event.key == pygame.K_UP: 
+                    selected_index = (selected_index - 1) % len(menu_items)
+                elif event.key == pygame.K_DOWN:
+                    selected_index = (selected_index + 1) % len(menu_items)
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_clicked = True
+
+        # vykreslení a myší hover detekce
+        for i, item in enumerate(menu_items):
+            menu_text = menu_font.render(item, True, YELLOW if i == selected_index else WHITE)
+            menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, 100 + i * 60))
+            menu_rects.append(menu_rect)
+
+            # detekce najetí myší
+            if menu_rect.collidepoint(mouse_pos):
+                selected_index = i
+                if mouse_clicked:
+                    if i == 0:
+                        game_menu = False
+                    elif i == 1:
+                        print("Výběr mapy zatím není implementován.")
+                    elif i == 2:
+                        running = False
+
+            screen.blit(menu_text, menu_rect)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+        continue
 
 
-    all_sprites.draw(screen)
+    else:
 
-    player1.draw_health_bar(screen)
-    player2.draw_health_bar(screen)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if not game_over:
+                    if event.key == player1_controls['shoot']:
+                        bullet = player1.shoot(current_time, bullet_image)
+                        if bullet:
+                            all_sprites.add(bullet)
+                            bullets.add(bullet)
+                    if event.key == player2_controls['shoot']:
+                        bullet = player2.shoot(current_time, bullet_image)
+                        if bullet:
+                            all_sprites.add(bullet)
+                            bullets.add(bullet)
 
-    player1_health_text = font.render(f"{player1.name}: {player1.health}", True, WHITE)
-    screen.blit(player1_health_text, (10, 10))
-    player2_health_text = font.render(f"{player2.name}: {player2.health}", True, WHITE)
-    screen.blit(player2_health_text, (SCREEN_WIDTH - player2_health_text.get_width() - 10, 10))
+        if not game_over:
+            keys = pygame.key.get_pressed()
+            player1.update(keys, current_time)
+            player2.update(keys, current_time)
+            bullets.update()
+
+            hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
+            for hit in hits_player1:
+                player1.health -= 10
+                if player1.health <= 0:
+                    player1.health = 0
+                    game_over = True
+                    winner_text = "Player 2 Wins!"
+
+            hits_player2 = pygame.sprite.spritecollide(player2, bullets, True)
+            for hit in hits_player2:
+                player2.health -= 10
+                if player2.health <= 0:
+                    player2.health = 0
+                    game_over = True
+                    winner_text = "Player 1 Wins!"
 
 
-    if game_over:
-        game_over_font = pygame.font.Font(None, 74)
-        winner_display = game_over_font.render(winner_text, True, YELLOW)
-        winner_rect = winner_display.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
-        screen.blit(winner_display, winner_rect)
-
-        restart_font = pygame.font.Font(None, 48)
-        restart_text = restart_font.render("Press R to Restart", True, WHITE)
-        restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))
-        screen.blit(restart_text, restart_rect)
-
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_r]:
-            game_over = False
-            player1.health = 100
-            player2.health = 100
+        screen.blit(background_image, (0, 0))
 
 
-            player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
-            player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
+        all_sprites.draw(screen)
 
-            for bullet in bullets:
-                bullet.kill()
-            bullets.empty()
+        player1.draw_health_bar(screen)
+        player2.draw_health_bar(screen)
 
-            if player1.animation_frames[player1.direction]:
-                player1.current_frame_index = 0
-                player1.image = player1.animation_frames[player1.direction][player1.current_frame_index]
+        player1_health_text = font.render(f"{player1.name}: {player1.health}", True, WHITE)
+        screen.blit(player1_health_text, (10, 10))
+        player2_health_text = font.render(f"{player2.name}: {player2.health}", True, WHITE)
+        screen.blit(player2_health_text, (SCREEN_WIDTH - player2_health_text.get_width() - 10, 10))
 
-            if player2.animation_frames[player2.direction]:
-                player2.current_frame_index = 0
-                player2.image = player2.animation_frames[player2.direction][player2.current_frame_index]
 
-    pygame.display.flip()
+        if game_over:
+            game_over_font = pygame.font.Font(None, 74)
+            winner_display = game_over_font.render(winner_text, True, YELLOW)
+            winner_rect = winner_display.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
+            screen.blit(winner_display, winner_rect)
 
-    clock.tick(FPS)
+            restart_font = pygame.font.Font(None, 48)
+            restart_text = restart_font.render("Press R to Restart", True, WHITE)
+            restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))
+            screen.blit(restart_text, restart_rect)
+
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_r]:
+                game_over = False
+                player1.health = 100
+                player2.health = 100
+
+
+                player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+                player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
+
+                for bullet in bullets:
+                    bullet.kill()
+                bullets.empty()
+
+                if player1.animation_frames[player1.direction]:
+                    player1.current_frame_index = 0
+                    player1.image = player1.animation_frames[player1.direction][player1.current_frame_index]
+
+                if player2.animation_frames[player2.direction]:
+                    player2.current_frame_index = 0
+                    player2.image = player2.animation_frames[player2.direction][player2.current_frame_index]
+
+        pygame.display.flip()
+
+        clock.tick(FPS)
 
 pygame.quit()
