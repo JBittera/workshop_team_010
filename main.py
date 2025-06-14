@@ -353,8 +353,8 @@ while running:
             player2.health = 100
 
 
-            player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
-            player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
+            player1.rect.center = no_collision(random_player1_start_position, obstacles)
+            player2.rect.center = no_collision(random_player2_start_position, obstacles)
 
             for bullet in bullets:
                 bullet.kill()
