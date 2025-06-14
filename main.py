@@ -5,11 +5,15 @@ import math
 from settings import (
     SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
-    BACKGROUND_IMAGE_PATH, player_animation_paths
+    player_animation_paths,
+    STONE_IMAGE_PATH, STONE_SIZE,
+    CURRENT_MAP_SETTING_NAME
 )
 from utils import load_image
 from player import Player
 from bullet import Bullet
+from stone import Stone
+from mapSettings import MAP_SETTINGS
 
 pygame.init()
 
@@ -17,9 +21,11 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter (2 Players)")
 
-background_image = load_image(BACKGROUND_IMAGE_PATH, (SCREEN_WIDTH, SCREEN_HEIGHT))
-bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
+chosen_map = MAP_SETTINGS[CURRENT_MAP_SETTING_NAME]
 
+background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
+bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
+stone_image = load_image(STONE_IMAGE_PATH, STONE_SIZE)
 game_icon = load_image(GAME_ICON_PATH)
 if game_icon:
     pygame.display.set_icon(game_icon)
@@ -71,6 +77,11 @@ all_sprites.add(player1, player2)
 
 bullets = pygame.sprite.Group()
 
+stone_group = pygame.sprite.Group()
+if stone_image:
+    for pos_x, pos_y in chosen_map["stone_positions"]:
+        stone_group.add(Stone(pos_x, pos_y, stone_image))
+
 font = pygame.font.Font(None, 36)
 
 running = True
@@ -98,9 +109,11 @@ while running:
 
     if not game_over:
         keys = pygame.key.get_pressed()
-        player1.update(keys, current_time)
-        player2.update(keys, current_time)
+        player1.update(keys, current_time, stone_group)
+        player2.update(keys, current_time, stone_group)
         bullets.update()
+
+        pygame.sprite.groupcollide(bullets, stone_group, True, False)
 
         hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
         for hit in hits_player1:
@@ -123,6 +136,7 @@ while running:
 
 
     all_sprites.draw(screen)
+    stone_group.draw(screen)
 
     player1.draw_health_bar(screen)
     player2.draw_health_bar(screen)
@@ -157,6 +171,11 @@ while running:
             for bullet in bullets:
                 bullet.kill()
             bullets.empty()
+
+            stone_group.empty()
+            if stone_image:
+                for pos_x, pos_y in chosen_map["stone_positions"]:
+                    stone_group.add(Stone(pos_x, pos_y, stone_image))
 
             if player1.animation_frames[player1.direction]:
                 player1.current_frame_index = 0

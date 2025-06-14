@@ -31,7 +31,8 @@ class Player(pygame.sprite.Sprite):
         self.last_frame_update = pygame.time.get_ticks()
         self.animation_speed = 100
 
-    def update(self, keys, current_time):
+    def update(self, keys, current_time, obstacles):
+        old_x, old_y = self.rect.x, self.rect.y #stara pozicia
         moving = False
 
         if keys[self.controls['left']]:
@@ -54,6 +55,11 @@ class Player(pygame.sprite.Sprite):
         self.rect.right = min(SCREEN_WIDTH, self.rect.right)
         self.rect.top = max(0, self.rect.top)
         self.rect.bottom = min(SCREEN_HEIGHT, self.rect.bottom)
+
+        for obstacle in obstacles:
+            if self.rect.colliderect(obstacle.rect):
+                self.rect.x, self.rect.y = old_x, old_y
+                break
 
         if self.animation_frames[self.direction]:
             if moving and current_time - self.last_frame_update > self.animation_speed:
