@@ -6,7 +6,6 @@ from settings import SCREEN_WIDTH, SCREEN_HEIGHT, RED, GREEN, PLAYER_SPEED, PLAY
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, controls, name, animation_frames_set):
-
         super().__init__()
         self.animation_frames = animation_frames_set
         self.direction = 'right'
@@ -86,10 +85,11 @@ class Player(pygame.sprite.Sprite):
 
             bullet_start_y = self.rect.centery
 
-        return Bullet(bullet_start_x, bullet_start_y, angle, bullet_img)
+            if bullet_img:
+                return Bullet(bullet_start_x, bullet_start_y, angle, bullet_img)
+        return None
 
     def draw_health_bar(self, surface):
-
         health_bar_width = self.rect.width
         health_bar_height = 5
         health_ratio = self.health / 100.0

@@ -3,7 +3,7 @@ import math
 
 
 from settings import (
-    SCREEN_WIDTH, SCREEN_HEIGHT, FPS, YELLOW, WHITE,
+    SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
     BACKGROUND_IMAGE_PATH, player_animation_paths
 )
@@ -18,7 +18,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter (2 Players)")
 
 background_image = load_image(BACKGROUND_IMAGE_PATH, (SCREEN_WIDTH, SCREEN_HEIGHT))
-bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))  # Adjust size as needed
+bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
 
 game_icon = load_image(GAME_ICON_PATH)
 if game_icon:
@@ -36,8 +36,10 @@ for i in range(1, 5):
     frame_left = load_image(left_path, PLAYER_SIZE)
     frame_right = load_image(right_path, PLAYER_SIZE)
 
-    player_animation_frames['left'].append(frame_left)
-    player_animation_frames['right'].append(frame_right)
+    if frame_left:
+        player_animation_frames['left'].append(frame_left)
+    if frame_right:
+        player_animation_frames['right'].append(frame_right)
 
 clock = pygame.time.Clock()
 
@@ -85,19 +87,20 @@ while running:
             if not game_over:
                 if event.key == player1_controls['shoot']:
                     bullet = player1.shoot(current_time, bullet_image)
-                    all_sprites.add(bullet)
-                    bullets.add(bullet)
+                    if bullet:
+                        all_sprites.add(bullet)
+                        bullets.add(bullet)
                 if event.key == player2_controls['shoot']:
                     bullet = player2.shoot(current_time, bullet_image)
-                    all_sprites.add(bullet)
-                    bullets.add(bullet)
+                    if bullet:
+                        all_sprites.add(bullet)
+                        bullets.add(bullet)
 
     if not game_over:
         keys = pygame.key.get_pressed()
         player1.update(keys, current_time)
         player2.update(keys, current_time)
         bullets.update()
-
 
         hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
         for hit in hits_player1:
@@ -118,6 +121,7 @@ while running:
 
     screen.blit(background_image, (0, 0))
 
+
     all_sprites.draw(screen)
 
     player1.draw_health_bar(screen)
@@ -127,6 +131,7 @@ while running:
     screen.blit(player1_health_text, (10, 10))
     player2_health_text = font.render(f"{player2.name}: {player2.health}", True, WHITE)
     screen.blit(player2_health_text, (SCREEN_WIDTH - player2_health_text.get_width() - 10, 10))
+
 
     if game_over:
         game_over_font = pygame.font.Font(None, 74)
@@ -145,7 +150,7 @@ while running:
             player1.health = 100
             player2.health = 100
 
-            # Revert to fixed positions for restart
+
             player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
             player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
 
