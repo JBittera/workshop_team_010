@@ -17,7 +17,6 @@ from mapSettings import MAP_SETTINGS
 
 pygame.init()
 
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter (2 Players)")
 
@@ -99,7 +98,7 @@ game_menu = False
 game_over = False
 maps_menu = False
 winner_text = ""
-selected_index = 0  # výběr pomocí kláves i myši
+selected_index = 0  # aktuálně vybraná položka v menu
 
 start_time = pygame.time.get_ticks()  # <- čas spuštění hry
 
@@ -111,13 +110,10 @@ while running:
     #**********************
     if game_start:
         screen.blit(background_image, (0, 0))
-
-
         title_font = pygame.font.Font("fonts/PressStart2P.ttf", 45)  # menší velikost = víc "pixelově"
         title_text = title_font.render("BULÁNCI 010", False, WHITE)  # False = bez vyhlazování
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 150))
         screen.blit(title_text, title_rect)
-
 
         if current_time - start_time >= 3000:
             game_start = False
@@ -126,14 +122,12 @@ while running:
         pygame.display.flip()
         clock.tick(FPS)
         continue
+
     #**********************
     # GAME MENU SCREEN
     #**********************
     if game_menu:
-
-
         screen.blit(background_image, (0, 0))
-
         menu_font = pygame.font.Font("fonts/PressStart2P.ttf", 24)
         menu_items = ["Hrát", "Výběr mapy", "Konec hry"]
         menu_rects = []  # pro ukládání pozic jednotlivých položek
@@ -218,7 +212,7 @@ while running:
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_clicked = True
         
-        # načtení menu map
+        # načtení obsahu menu map
         for index, name in enumerate(map_names):
             color = YELLOW if index == selected_index else WHITE
             map_text = map_font.render(name, True, color)
