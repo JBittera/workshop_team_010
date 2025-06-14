@@ -1,13 +1,12 @@
 import pygame
 import math
-
+import settings
 
 from settings import (
     BUSH_IMAGE_PATH, BUSH_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
     player_animation_paths,
     STONE_IMAGE_PATH, STONE_SIZE,
-    CURRENT_MAP_SETTING_NAME
 )
 from utils import load_image, no_collision, random_player1_start_position, random_player2_start_position
 from player import Player
@@ -22,7 +21,7 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter (2 Players)")
 
-chosen_map = MAP_SETTINGS[CURRENT_MAP_SETTING_NAME]
+chosen_map = MAP_SETTINGS[settings.CURRENT_MAP_SETTING_NAME]
 
 background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
 bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
@@ -98,7 +97,7 @@ running = True
 game_start = True
 game_menu = False
 game_over = False
-game_maps = False
+maps_menu = False
 winner_text = ""
 selected_index = 0  # výběr pomocí kláves i myši
 
@@ -107,8 +106,9 @@ start_time = pygame.time.get_ticks()  # <- čas spuštění hry
 
 while running:
     current_time = pygame.time.get_ticks()
-
+    #**********************
     # ÚVODNÍ SCREEN
+    #**********************
     if game_start:
         screen.blit(background_image, (0, 0))
 
@@ -126,8 +126,9 @@ while running:
         pygame.display.flip()
         clock.tick(FPS)
         continue
-
-    # MENU SCREEN
+    #**********************
+    # GAME MENU SCREEN
+    #**********************
     if game_menu:
 
 
@@ -143,15 +144,14 @@ while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:# pohyb v menu pomocí kláves
+            # FUNKCE menu pomocí kláves
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN: #= enter
                     if selected_index == 0:
                         game_menu = False
                     elif selected_index == 1:
                         game_menu = False
-                        game_maps = True
-
-                        print("Výběr mapy zatím není implementován.")
+                        maps_menu = True
                     elif selected_index == 2:
                         running = False
                 elif event.key == pygame.K_UP:
@@ -161,7 +161,7 @@ while running:
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_clicked = True
 
-        # vykreslení a myší hover detekce
+        # FUNKCE menu pomocí myši
         for i, item in enumerate(menu_items):
             menu_text = menu_font.render(item, True, YELLOW if i == selected_index else WHITE)
             menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, 100 + i * 60))
@@ -174,6 +174,8 @@ while running:
                     if i == 0:
                         game_menu = False
                     elif i == 1:
+                        game_menu = False
+                        maps_menu = True
                         print("Výběr mapy zatím není implementován.")
                     elif i == 2:
                         running = False
@@ -184,12 +186,76 @@ while running:
         clock.tick(FPS)
         continue
 
-    # VÝBĚR MAPY SCREEN
-    if game_maps:
-        #LOOK HERE:
-        test = "test45"
+    #**********************
+    #VÝBĚR MAPY SCREEN
+    #**********************
+    if maps_menu:
+        screen.blit(background_image, (0, 0))
 
+        map_font = pygame.font.Font("fonts/PressStart2P.ttf", 20)
+        map_names = list(MAP_SETTINGS.keys()) + ["Back"]
+
+
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_clicked = False
+
+        # pohyb v menu a ovládní menu
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE: # zpět na menu hry
+                    game_maps = False
+                    game_menu = True
+                elif event.key == pygame.K_RETURN:
+                    CURRENT_MAP_SETTING_NAME = map_names[selected_index]
+                    game_maps = False
+                    game_menu = False
+                elif event.key == pygame.K_UP:
+                    selected_index = (selected_index - 1) % len(map_names)
+                elif event.key == pygame.K_DOWN:
+                    selected_index = (selected_index + 1) % len(map_names)
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_clicked = True
+        
+        # načtení menu map
+        for index, name in enumerate(map_names):
+            color = YELLOW if index == selected_index else WHITE
+            map_text = map_font.render(name, True, color)
+            map_rect = map_text.get_rect(center=(SCREEN_WIDTH // 2, 100 + index * 50))
+
+            if map_rect.collidepoint(mouse_pos): # kurzor na této položce
+                selected_index = index
+                if mouse_clicked:
+                    if name == "Back":
+                        game_maps = False
+                        game_menu = True
+                    else:
+                        settings.CURRENT_MAP_SETTING_NAME = name
+
+                        # po kliknutí se uloží mapa jako current_map
+                        chosen_map = MAP_SETTINGS[settings.CURRENT_MAP_SETTING_NAME]
+                        background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+                        # vymaže staré kameny a přidá nové, definované v právě vybrané mapě
+                        stone_group.empty()
+                        if stone_image:
+                            for pos_x, pos_y in chosen_map["stone_positions"]:
+                                stone_group.add(Stone(pos_x, pos_y, stone_image))
+
+                        game_maps = False
+                        game_menu = True
+
+            screen.blit(map_text, map_rect)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+        continue
+
+        
+    #**********************
     # GAME ITSELF:
+    #**********************
     else:
 
         for event in pygame.event.get():
@@ -222,13 +288,13 @@ while running:
                 game_over = True
                 winner_text = "Player 2 Wins!"
 
-            hits_player2 = pygame.sprite.spritecollide(player2, bullets, True)
-            for hit in hits_player2:
-                player2.health -= 10
-                if player2.health <= 0:
-                    player2.health = 0
-                    game_over = True
-                    winner_text = "Player 1 Wins!"
+        hits_player2 = pygame.sprite.spritecollide(player2, bullets, True)
+        for hit in hits_player2:
+            player2.health -= 10
+            if player2.health <= 0:
+                player2.health = 0
+                game_over = True
+                winner_text = "Player 1 Wins!"
 
 
         screen.blit(background_image, (0, 0))
