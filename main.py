@@ -133,6 +133,15 @@ while running:
                 if event.key == pygame.K_RETURN: #= enter
                     if selected_index == 0:
                         game_menu = False
+                        player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+                        player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
+                        for bullet in bullets:
+                            bullet.kill()
+                        bullets.empty()
+                        stone_group.empty()
+                        if stone_image:
+                            for pos_x, pos_y in chosen_map["stone_positions"]:
+                                stone_group.add(Stone(pos_x, pos_y, stone_image))
                     elif selected_index == 1:
                         print("Výběr mapy zatím není implementován.")
                     elif selected_index == 2:
@@ -168,29 +177,30 @@ while running:
         continue
 
 
-    else:
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if not game_over:
-                    if event.key == player1_controls['shoot']:
-                        bullet = player1.shoot(current_time, bullet_image)
-                        if bullet:
-                            all_sprites.add(bullet)
-                            bullets.add(bullet)
-                    if event.key == player2_controls['shoot']:
-                        bullet = player2.shoot(current_time, bullet_image)
-                        if bullet:
-                            all_sprites.add(bullet)
-                            bullets.add(bullet)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if not game_over:
+                if event.key == player1_controls['shoot']:
+                    bullet = player1.shoot(current_time, bullet_image)
+                    if bullet:
+                        all_sprites.add(bullet)
+                        bullets.add(bullet)
+                if event.key == player2_controls['shoot']:
+                    bullet = player2.shoot(current_time, bullet_image)
+                    if bullet:
+                        all_sprites.add(bullet)
+                        bullets.add(bullet)
 
     if not game_over:
         keys = pygame.key.get_pressed()
         player1.update(keys, current_time, stone_group)
         player2.update(keys, current_time, stone_group)
         bullets.update()
+
+        pygame.sprite.groupcollide(bullets, stone_group, True, False)
 
         hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
         for hit in hits_player1:
@@ -200,16 +210,16 @@ while running:
                 game_over = True
                 winner_text = "Player 2 Wins!"
 
-            hits_player2 = pygame.sprite.spritecollide(player2, bullets, True)
-            for hit in hits_player2:
-                player2.health -= 10
-                if player2.health <= 0:
-                    player2.health = 0
-                    game_over = True
-                    winner_text = "Player 1 Wins!"
+        hits_player2 = pygame.sprite.spritecollide(player2, bullets, True)
+        for hit in hits_player2:
+            player2.health -= 10
+            if player2.health <= 0:
+                player2.health = 0
+                game_over = True
+                winner_text = "Player 1 Wins!"
 
 
-        screen.blit(background_image, (0, 0))
+    screen.blit(background_image, (0, 0))
 
 
     all_sprites.draw(screen)
