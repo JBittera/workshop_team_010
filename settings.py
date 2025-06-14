@@ -15,11 +15,7 @@ BULLET_SIZE = (10, 10)
 
 BULLET_IMAGE_PATH = "images/bullet.png"
 GAME_ICON_PATH = "images/ico_game.png"
-BUSH_IMAGE_PATH = "images/bush.png"
-CURRENT_MAP_SETTING_NAME = "map_desert"
 
-STONE_IMAGE_SMALL_PATH = "images/stone.png"
-STONE_IMAGE_BIG_PATH = "images/stone.png"
 STONE_SIZE = (60, 60)
 STONE_SIZE_SMALL = (50, 50)
 STONE_SIZE_BIG = (100, 100)
@@ -36,3 +32,5 @@ PLAYER_HEALTH = 100
 PLAYER_SHOOT_COOLDOWN = 200
 
 BULLET_SPEED = 3
+
+CURRENT_MAP_SETTING_NAME = "map_university"
