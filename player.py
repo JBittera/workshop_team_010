@@ -91,7 +91,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.top = max(0, self.rect.top)
         self.rect.bottom = min(SCREEN_HEIGHT, self.rect.bottom)
 
-    def shoot(self, current_time, bullet_img):
+    def shoot(self, current_time, bullet_imgs):
         from bullet import Bullet
 
         if current_time - self.last_shot_time > self.shoot_cooldown and self.bullets_count > 0:
@@ -118,8 +118,8 @@ class Player(pygame.sprite.Sprite):
                 bullet_start_y += bullet_spawn_offset_y
                 angle = math.pi / 2
 
-            if bullet_img:
-                return Bullet(bullet_start_x, bullet_start_y, angle, bullet_img)
+            if bullet_imgs:
+                return Bullet(bullet_start_x, bullet_start_y, angle, bullet_imgs[self.direction])
         return None
 
     def draw_health_bar(self, surface):

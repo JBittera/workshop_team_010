@@ -26,7 +26,13 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter (2 Players)")
 
 background_image = None
-bullet_image = None
+bullet_image = load_image(BULLET_IMAGE_PATH,(10, 10))
+bullet_images = {
+    'up': pygame.transform.rotate(bullet_image, 90),
+    'down': pygame.transform.rotate(bullet_image, -90),
+    'left': pygame.transform.rotate(bullet_image, 180),
+    'right': bullet_image,
+}
 stone_small_image = None
 stone_big_image = None
 bush_image = None
@@ -381,13 +387,13 @@ while running:
             elif event.type == pygame.KEYDOWN:
                 if not game_over:
                     if event.key == player1_controls['shoot']:
-                        bullet = player1.shoot(current_time, bullet_image)
+                        bullet = player1.shoot(current_time, bullet_images)
                         if bullet:
                             shoot_sound.play()
                             all_sprites.add(bullet)
                             bullets.add(bullet)
                     if event.key == player2_controls['shoot']:
-                        bullet = player2.shoot(current_time, bullet_image)
+                        bullet = player2.shoot(current_time, bullet_images)
                         if bullet:
                             shoot_sound.play()
                             all_sprites.add(bullet)
