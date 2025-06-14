@@ -5,7 +5,7 @@ import settings
 
 from settings import (
     BOX_BULLETS_COUNT, BOX_SIZE, BOX_SPAWN_DELAY, BUSH_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
-    PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
+    PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH, BULLET_SIZE,
     STONE_SIZE_SMALL,
     STONE_SIZE_BIG,
     CURRENT_MAP_SETTING_NAME,
@@ -26,7 +26,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter (2 Players)")
 
 background_image = None
-bullet_image = load_image(BULLET_IMAGE_PATH,(10, 10))
+bullet_image = None
 stone_small_image = None
 stone_big_image = None
 bush_image = None
@@ -36,6 +36,21 @@ NEW_BOX_EVENT = pygame.USEREVENT + 1
 game_icon = load_image(GAME_ICON_PATH)
 if game_icon:
     pygame.display.set_icon(game_icon)
+
+pygame.mixer.music.load("music/main_menu.ogg")
+map_music = None
+
+click_sound = pygame.mixer.Sound("music/click.mp3")
+click_sound.set_volume(0.5)
+shoot_sound = None
+player_hit_sound = pygame.mixer.Sound("music/hitted.mp3")
+player_hit_sound.set_volume(0.8)
+rock_hit_sound = None
+reload_sound = pygame.mixer.Sound("music/reload.mp3")
+reload_sound.set_volume(0.6)
+victory_sound = pygame.mixer.Sound("music/victory.mp3")
+victory_sound.set_volume(0.6)
+
 
 player1_animation_frames = {
     'down': load_frames_from_spritesheet(
@@ -125,7 +140,7 @@ player2_controls = {
 player2 = Player(0, 0, player2_controls, "Player 2", player2_animation_frames)
 
 def _switch_map_assets(map_name):
-    global background_image, stone_small_image, stone_big_image, bush_image, obstacles, box, box_image
+    global background_image, stone_small_image, stone_big_image, bush_image, obstacles, box, box_image, bullet_image, map_music, shoot_sound, rock_hit_sound
 
     settings.CURRENT_MAP_SETTING_NAME = map_name
     chosen_map = MAP_SETTINGS[settings.CURRENT_MAP_SETTING_NAME]
@@ -135,6 +150,12 @@ def _switch_map_assets(map_name):
     stone_big_image = load_image(chosen_map["big_stone_image_path"], STONE_SIZE_BIG)
     bush_image = load_image(chosen_map["bush_image_path"], BUSH_SIZE)
     box_image = load_image(chosen_map["box_image_path"], BOX_SIZE)
+    bullet_image = load_image(chosen_map["bullet_image_path"], BULLET_SIZE)
+    map_music = chosen_map["map_music_path"]
+    shoot_sound = pygame.mixer.Sound(chosen_map["shoot_sound_path"])
+    shoot_sound.set_volume(0.5)
+    rock_hit_sound = pygame.mixer.Sound(chosen_map["rock_hit_sound_path"])
+    rock_hit_sound.set_volume(0.5)
 
     stone_group.empty()
     bush_group.empty()
@@ -193,6 +214,10 @@ while running:
     #**********************
     if game_start:
         screen.blit(background_image, (0, 0))
+        #main_menu_music.set_volume(0.4)
+        #main_menu_music.play(-1)
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
 
         title_font = pygame.font.Font("fonts/PressStart2P.ttf", 45)  # menší velikost = víc "pixelově"
         title_text = title_font.render("BULÁNCI 010", False, WHITE)  # False = bez vyhlazování
@@ -258,6 +283,11 @@ while running:
                 selected_index = i
                 if mouse_clicked:
                     if i == 0: # Hrát
+                        click_sound.play()
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.load(map_music)
+                        pygame.mixer.music.set_volume(0.5)
+                        pygame.mixer.music.play(-1)
                         game_menu = False
                         player1.health = 100
                         player2.health = 100
@@ -268,9 +298,11 @@ while running:
                         bullets.empty()
                         _switch_map_assets(settings.CURRENT_MAP_SETTING_NAME)
                     elif i == 1: # Výběr mapy
+                        click_sound.play()
                         game_menu = False
                         maps_menu = True
                     elif i == 2: # Konec hry
+                        click_sound.play()
                         running = False
 
             screen.blit(menu_text, menu_rect)
@@ -296,10 +328,12 @@ while running:
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    click_sound.play()
                     maps_menu = False
                     game_menu = True
                 elif event.key == pygame.K_RETURN:
                     if map_names[selected_index] == "Back":
+                        click_sound.play()
                         maps_menu = False
                         game_menu = True
                     else:
@@ -324,9 +358,11 @@ while running:
                 selected_index = index
                 if mouse_clicked:
                     if name == "Back":
+                        click_sound.play()
                         maps_menu = False
                         game_menu = True
                     else:
+                        click_sound.play()
                         _switch_map_assets(name)
                         maps_menu = False
                         game_menu = True
@@ -347,11 +383,13 @@ while running:
                     if event.key == player1_controls['shoot']:
                         bullet = player1.shoot(current_time, bullet_image)
                         if bullet:
+                            shoot_sound.play()
                             all_sprites.add(bullet)
                             bullets.add(bullet)
                     if event.key == player2_controls['shoot']:
                         bullet = player2.shoot(current_time, bullet_image)
                         if bullet:
+                            shoot_sound.play()
                             all_sprites.add(bullet)
                             bullets.add(bullet)
             elif event.type == NEW_BOX_EVENT:
@@ -369,10 +407,12 @@ while running:
 
         if box:
             if pygame.sprite.collide_rect(player1, box):
+                reload_sound.play()
                 player1.bullets_count += BOX_BULLETS_COUNT
                 box.kill()
                 box = None
             elif pygame.sprite.collide_rect(player2, box):
+                reload_sound.play()
                 player2.bullets_count += BOX_BULLETS_COUNT
                 box.kill()
                 box = None
@@ -382,7 +422,10 @@ while running:
         hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
         for hit in hits_player1:
             player1.health -= 10
+            rock_hit_sound.play()
             if player1.health <= 0:
+                victory_sound.play()
+                player_hit_sound.play()
                 player1.health = 0
                 game_over = True
                 winner_text = "Player 2 Wins!"
@@ -390,7 +433,10 @@ while running:
         hits_player2 = pygame.sprite.spritecollide(player2, bullets, True)
         for hit in hits_player2:
             player2.health -= 10
+            rock_hit_sound.play()
             if player2.health <= 0:
+                victory_sound.play()
+                player_hit_sound.play()
                 player2.health = 0
                 game_over = True
                 winner_text = "Player 1 Wins!"

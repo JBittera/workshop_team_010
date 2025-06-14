@@ -36,7 +36,7 @@ class Player(pygame.sprite.Sprite):
     def update(self, keys, current_time, obstacles):
         dx, dy = 0, 0
         moving = False
-
+        
         if keys[self.controls['left']]:
             dx = -self.speed
             self.direction = 'left'
@@ -98,8 +98,8 @@ class Player(pygame.sprite.Sprite):
             self.bullets_count -= 1
             self.last_shot_time = current_time
 
-            bullet_spawn_offset_x = self.rect.width / 2 + 5
-            bullet_spawn_offset_y = self.rect.height / 2 + 5
+            bullet_spawn_offset_x = self.rect.width / 2 + 12
+            bullet_spawn_offset_y = self.rect.height / 2 + 12
 
             bullet_start_x = self.rect.centerx
             bullet_start_y = self.rect.centery

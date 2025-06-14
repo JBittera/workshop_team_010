@@ -15,6 +15,7 @@ PLAYER_SIZE = (40, 40)
 BULLET_SIZE = (10, 10)
 
 BULLET_IMAGE_PATH = "images/bullet.png"
+BULLET_SIZE = (19, 21)
 GAME_ICON_PATH = "images/ico_game.png"
 
 STONE_SIZE = (60, 60)
@@ -57,4 +58,4 @@ BOX_SPAWN_DELAY = 3000
 
 BULLET_SPEED = 10
 
-CURRENT_MAP_SETTING_NAME = "University"
+CURRENT_MAP_SETTING_NAME = "Deadwood"
