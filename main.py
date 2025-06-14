@@ -6,7 +6,9 @@ from settings import (
     BUSH_IMAGE_PATH, BUSH_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
     player_animation_paths,
-    STONE_IMAGE_PATH, STONE_SIZE,
+    STONE_IMAGE_SMALL_PATH, STONE_SIZE_SMALL,
+    STONE_IMAGE_BIG_PATH, STONE_SIZE_BIG,
+    CURRENT_MAP_SETTING_NAME
 )
 from utils import load_image, no_collision, random_player1_start_position, random_player2_start_position
 from player import Player
@@ -25,7 +27,10 @@ chosen_map = MAP_SETTINGS[settings.CURRENT_MAP_SETTING_NAME]
 
 background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
 bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
-stone_image = load_image(STONE_IMAGE_PATH, STONE_SIZE)
+
+stone_small_image = load_image(STONE_IMAGE_SMALL_PATH, STONE_SIZE_SMALL)
+stone_big_image = load_image(STONE_IMAGE_BIG_PATH, STONE_SIZE_BIG)
+
 bush_image = load_image(BUSH_IMAGE_PATH, BUSH_SIZE)
 game_icon = load_image(GAME_ICON_PATH)
 if game_icon:
@@ -52,9 +57,11 @@ clock = pygame.time.Clock()
 
 all_sprites = pygame.sprite.Group()
 stone_group = pygame.sprite.Group()
-if stone_image:
-    for pos_x, pos_y in chosen_map["stone_positions"]:
-        stone_group.add(Stone(pos_x, pos_y, stone_image))
+for pos_x, pos_y, stone_type in chosen_map["stone_positions"]:
+    if stone_type == "small":
+        stone_group.add(Stone(pos_x, pos_y, stone_small_image))
+    elif stone_type == "big":
+        stone_group.add(Stone(pos_x, pos_y, stone_big_image))
 all_sprites.add(stone_group)
 
 bush_group = pygame.sprite.Group()
@@ -93,10 +100,11 @@ all_sprites.add(player1, player2)
 bullets = pygame.sprite.Group()
 
 stone_group = pygame.sprite.Group()
-if stone_image:
-    for pos_x, pos_y in chosen_map["stone_positions"]:
-        stone_group.add(Stone(pos_x, pos_y, stone_image))
-
+for pos_x, pos_y, stone_type in chosen_map["stone_positions"]:
+    if stone_type == "small":
+        stone_group.add(Stone(pos_x, pos_y, stone_small_image))
+    elif stone_type == "big":
+        stone_group.add(Stone(pos_x, pos_y, stone_big_image))
 font = pygame.font.Font(None, 36)
 
 running = True
@@ -161,8 +169,11 @@ while running:
                             bullet.kill()
                         bullets.empty()
                         stone_group.empty()
-                        for pos_x, pos_y in chosen_map["stone_positions"]:
-                            stone_group.add(Stone(pos_x, pos_y, stone_image))
+                        for pos_x, pos_y, stone_type in chosen_map["stone_positions"]:
+                            if stone_type == "small":
+                                stone_group.add(Stone(pos_x, pos_y, stone_small_image))
+                            elif stone_type == "big":
+                                stone_group.add(Stone(pos_x, pos_y, stone_big_image))
                     elif selected_index == 1:
                         game_menu = False
                         maps_menu = True
@@ -253,9 +264,11 @@ while running:
 
                         # vymaže staré kameny a přidá nové, definované v právě vybrané mapě
                         stone_group.empty()
-                        if stone_image:
-                            for pos_x, pos_y in chosen_map["stone_positions"]:
-                                stone_group.add(Stone(pos_x, pos_y, stone_image))
+                        for pos_x, pos_y, stone_type in chosen_map["stone_positions"]:
+                            if stone_type == "small":
+                                stone_group.add(Stone(pos_x, pos_y, stone_small_image))
+                            elif stone_type == "big":
+                                stone_group.add(Stone(pos_x, pos_y, stone_big_image))
 
                         game_maps = False
                         game_menu = True
@@ -348,8 +361,11 @@ while running:
             bullets.empty()
 
             stone_group.empty()
-            for pos_x, pos_y in chosen_map["stone_positions"]:
-                stone_group.add(Stone(pos_x, pos_y, stone_image))
+            for pos_x, pos_y, stone_type in chosen_map["stone_positions"]:
+                if stone_type == "small":
+                    stone_group.add(Stone(pos_x, pos_y, stone_small_image))
+                elif stone_type == "big":
+                    stone_group.add(Stone(pos_x, pos_y, stone_big_image))
 
         if player1.animation_frames[player1.direction]:
             player1.current_frame_index = 0
