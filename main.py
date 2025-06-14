@@ -63,11 +63,12 @@ if bush_image:
         bush_group.add(Bush(pos_x, pos_y, bush_image))
 
 
+obstacles = pygame.sprite.Group(stone_group, bush_group)
 player_rect = frame_left.get_rect()
 screen_rect = screen.get_rect()
 
-player1_start_x, player1_start_y = no_collision(random_player1_start_position, bush_group)
-player2_start_x, player2_start_y = no_collision(random_player2_start_position, bush_group)
+player1_start_x, player1_start_y = no_collision(random_player1_start_position, obstacles)
+player2_start_x, player2_start_y = no_collision(random_player2_start_position, obstacles)
 
 player1_controls = {
     'up': pygame.K_w,
@@ -111,7 +112,7 @@ start_time = pygame.time.get_ticks()  # <- čas spuštění hry
 
 while running:
     current_time = pygame.time.get_ticks()
-    
+
     # ÚVODNÍ SCREEN
     #**********************
     if game_start:
