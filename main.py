@@ -78,18 +78,22 @@ running = True
 game_start = True
 game_menu = False
 game_over = False
+game_maps = False
 winner_text = ""
 selected_index = 0  # výběr pomocí kláves i myši
 
 start_time = pygame.time.get_ticks()  # <- čas spuštění hry
 
+
 while running:
     current_time = pygame.time.get_ticks()
+    
+    # ÚVODNÍ SCREEN
     if game_start:
         screen.blit(background_image, (0, 0))
         
        
-        title_font = pygame.font.Font("fonts\PressStart2P.ttf", 45)  # menší velikost = víc "pixelově"
+        title_font = pygame.font.Font("fonts/PressStart2P.ttf", 45)  # menší velikost = víc "pixelově"
         title_text = title_font.render("BULÁNCI 010", False, WHITE)  # False = bez vyhlazování
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 150))
         screen.blit(title_text, title_rect)
@@ -103,12 +107,13 @@ while running:
         clock.tick(FPS)
         continue
 
+    # MENU SCREEN
     if game_menu:
         
 
         screen.blit(background_image, (0, 0))
 
-        menu_font = pygame.font.Font("fonts\\PressStart2P.ttf", 24)
+        menu_font = pygame.font.Font("fonts/PressStart2P.ttf", 24)
         menu_items = ["Hrát", "Výběr mapy", "Konec hry"]
         menu_rects = []  # pro ukládání pozic jednotlivých položek
 
@@ -123,6 +128,9 @@ while running:
                     if selected_index == 0:
                         game_menu = False
                     elif selected_index == 1:
+                        game_menu = False
+                        game_maps = True
+
                         print("Výběr mapy zatím není implementován.")
                     elif selected_index == 2:
                         running = False
@@ -156,7 +164,12 @@ while running:
         clock.tick(FPS)
         continue
 
+    # VÝBĚR MAPY SCREEN
+    if game_maps:
+        #LOOK HERE:
+        test = "test45"
 
+    # GAME ITSELF:
     else:
 
         for event in pygame.event.get():
