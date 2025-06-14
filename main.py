@@ -36,10 +36,8 @@ for i in range(1, 5):
     frame_left = load_image(left_path, PLAYER_SIZE)
     frame_right = load_image(right_path, PLAYER_SIZE)
 
-    if frame_left:  # Only append if image loaded successfully (not None)
-        player_animation_frames['left'].append(frame_left)
-    if frame_right:  # Only append if image loaded successfully (not None)
-        player_animation_frames['right'].append(frame_right)
+    player_animation_frames['left'].append(frame_left)
+    player_animation_frames['right'].append(frame_right)
 
 clock = pygame.time.Clock()
 
