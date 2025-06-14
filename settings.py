@@ -22,6 +22,8 @@ player_animation_paths = {
     'right': "images/player_right/right{i}.png"
 }
 
+BORDER_PADDING = 40
+
 PLAYER_SPEED = 5
 PLAYER_HEALTH = 100
 PLAYER_SHOOT_COOLDOWN = 200
