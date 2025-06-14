@@ -1,5 +1,5 @@
 import pygame
-from settings import PLAYER_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, BORDER_PADDING
+from settings import PLAYER_SIZE, PLAYER_SPEED, SCREEN_WIDTH, SCREEN_HEIGHT, BORDER_PADDING
 import random
 
 def load_image(path, scale=None):
@@ -34,3 +34,12 @@ def random_player2_start_position():
         SCREEN_HEIGHT - PLAYER_SIZE[1]//2 - BORDER_PADDING
     )
     return x, y
+
+def no_collision(player_pos_func, sprite_group):
+    while True:
+        rect = pygame.Rect(0, 0, PLAYER_SIZE[0] + 2*PLAYER_SPEED, PLAYER_SIZE[1] + 2*PLAYER_SPEED)
+        rect.center = player_pos_func()
+        sprite = pygame.sprite.Sprite()
+        sprite.rect = rect
+        if not pygame.sprite.spritecollideany(sprite, sprite_group):
+            return rect.center

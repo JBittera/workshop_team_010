@@ -7,6 +7,10 @@ MAP_SETTINGS = {
             (200, 200),
             (500, 400),
             (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        ],
+        "bush_positions": [
+            (100, 300),
+            (400, 50),
         ]
     },
     "map_forest": {
@@ -16,6 +20,10 @@ MAP_SETTINGS = {
             (700, 150),
             (300, 500),
             (600, 100)
+        ],
+        "bush_positions": [
+            (100, 300),
+            (400, 300),
         ]
     },
     # Add more map settings here as needed
@@ -26,6 +34,10 @@ MAP_SETTINGS = {
             (400, 100),
             (650, 500),
             (250, 550)
+        ],
+        "bush_positions": [
+            (100, 300),
+            (400, 300),
         ]
     }
 }

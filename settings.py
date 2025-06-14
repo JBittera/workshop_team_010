@@ -7,6 +7,8 @@ GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 WHITE = (255, 255, 255)
 STONE_SIZE = (60, 60)
+BUSH_SIZE = (140, 140)
+GRAY = (100, 100, 100)
 FPS = 60
 
 PLAYER_SIZE = (40, 40)
@@ -15,6 +17,7 @@ BULLET_SIZE = (10, 10)
 BULLET_IMAGE_PATH = "images/bullet.png"
 GAME_ICON_PATH = "images/ico_game.png"
 STONE_IMAGE_PATH = "images/stone.png"
+BUSH_IMAGE_PATH = "images/bush.png"
 CURRENT_MAP_SETTING_NAME = "map_desert"
 
 player_animation_paths = {
