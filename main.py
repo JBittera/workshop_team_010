@@ -79,9 +79,8 @@ all_sprites.add(player1, player2)
 bullets = pygame.sprite.Group()
 
 stone_group = pygame.sprite.Group()
-if stone_image:
-    for pos_x, pos_y in chosen_map["stone_positions"]:
-        stone_group.add(Stone(pos_x, pos_y, stone_image))
+for pos_x, pos_y in chosen_map["stone_positions"]:
+    stone_group.add(Stone(pos_x, pos_y, stone_image))
 
 font = pygame.font.Font(None, 36)
 
@@ -144,9 +143,8 @@ while running:
                             bullet.kill()
                         bullets.empty()
                         stone_group.empty()
-                        if stone_image:
-                            for pos_x, pos_y in chosen_map["stone_positions"]:
-                                stone_group.add(Stone(pos_x, pos_y, stone_image))
+                        for pos_x, pos_y in chosen_map["stone_positions"]:
+                            stone_group.add(Stone(pos_x, pos_y, stone_image))
                     elif selected_index == 1:
                         game_menu = False
                         game_maps = True
@@ -271,13 +269,17 @@ while running:
                 bullet.kill()
             bullets.empty()
 
+            stone_group.empty()
+            for pos_x, pos_y in chosen_map["stone_positions"]:
+                stone_group.add(Stone(pos_x, pos_y, stone_image))
+
         if player1.animation_frames[player1.direction]:
             player1.current_frame_index = 0
             player1.image = player1.animation_frames[player1.direction][player1.current_frame_index]
 
-            if player2.animation_frames[player2.direction]:
-                player2.current_frame_index = 0
-                player2.image = player2.animation_frames[player2.direction][player2.current_frame_index]
+        if player2.animation_frames[player2.direction]:
+            player2.current_frame_index = 0
+            player2.image = player2.animation_frames[player2.direction][player2.current_frame_index]
 
     pygame.display.flip()
 
