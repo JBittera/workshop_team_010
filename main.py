@@ -117,7 +117,7 @@ def _switch_map_assets(map_name):
         bush_group.add(Bush(pos_x, pos_y, bush_image))
 
     obstacles.empty()
-    obstacles.add(stone_group, bush_group)
+    obstacles.add(stone_group)
 
     all_sprites.empty()
     all_sprites.add(player1, player2, stone_group, bush_group)
