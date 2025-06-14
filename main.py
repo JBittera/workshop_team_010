@@ -90,6 +90,11 @@ all_sprites.add(player1, player2)
 
 bullets = pygame.sprite.Group()
 
+stone_group = pygame.sprite.Group()
+if stone_image:
+    for pos_x, pos_y in chosen_map["stone_positions"]:
+        stone_group.add(Stone(pos_x, pos_y, stone_image))
+
 font = pygame.font.Font(None, 36)
 
 running = True
@@ -105,7 +110,7 @@ start_time = pygame.time.get_ticks()  # <- čas spuštění hry
 
 while running:
     current_time = pygame.time.get_ticks()
-    #**********************
+    
     # ÚVODNÍ SCREEN
     #**********************
     if game_start:
@@ -143,6 +148,14 @@ while running:
                 if event.key == pygame.K_RETURN: #= enter
                     if selected_index == 0:
                         game_menu = False
+                        player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+                        player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
+                        for bullet in bullets:
+                            bullet.kill()
+                        bullets.empty()
+                        stone_group.empty()
+                        for pos_x, pos_y in chosen_map["stone_positions"]:
+                            stone_group.add(Stone(pos_x, pos_y, stone_image))
                     elif selected_index == 1:
                         game_menu = False
                         maps_menu = True
@@ -242,14 +255,7 @@ while running:
 
             screen.blit(map_text, map_rect)
 
-        pygame.display.flip()
-        clock.tick(FPS)
-        continue
-
-        
-    #**********************
     # GAME ITSELF:
-    #**********************
     else:
 
         for event in pygame.event.get():
@@ -274,6 +280,8 @@ while running:
         player2.update(keys, current_time, stone_group)
         bullets.update()
 
+        pygame.sprite.groupcollide(bullets, stone_group, True, False)
+
         hits_player1 = pygame.sprite.spritecollide(player1, bullets, True)
         for hit in hits_player1:
             player1.health -= 10
@@ -291,7 +299,7 @@ while running:
                 winner_text = "Player 1 Wins!"
 
 
-        screen.blit(background_image, (0, 0))
+    screen.blit(background_image, (0, 0))
 
 
     all_sprites.draw(screen)
@@ -332,13 +340,17 @@ while running:
                 bullet.kill()
             bullets.empty()
 
+            stone_group.empty()
+            for pos_x, pos_y in chosen_map["stone_positions"]:
+                stone_group.add(Stone(pos_x, pos_y, stone_image))
+
         if player1.animation_frames[player1.direction]:
             player1.current_frame_index = 0
             player1.image = player1.animation_frames[player1.direction][player1.current_frame_index]
 
-            if player2.animation_frames[player2.direction]:
-                player2.current_frame_index = 0
-                player2.image = player2.animation_frames[player2.direction][player2.current_frame_index]
+        if player2.animation_frames[player2.direction]:
+            player2.current_frame_index = 0
+            player2.image = player2.animation_frames[player2.direction][player2.current_frame_index]
 
     pygame.display.flip()
 
