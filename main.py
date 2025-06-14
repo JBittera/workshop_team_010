@@ -3,10 +3,12 @@ import math
 import settings
 
 from settings import (
-    BUSH_IMAGE_PATH, BUSH_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
+    BUSH_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, WHITE, YELLOW,
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
     player_animation_paths,
-    STONE_IMAGE_PATH, STONE_SIZE,
+    STONE_SIZE_SMALL,
+    STONE_SIZE_BIG,
+    CURRENT_MAP_SETTING_NAME
 )
 from utils import load_image, no_collision, random_player1_start_position, random_player2_start_position
 from player import Player
@@ -20,12 +22,12 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top-Down Shooter (2 Players)")
 
-chosen_map = MAP_SETTINGS[settings.CURRENT_MAP_SETTING_NAME]
+background_image = None
+bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10)) # Bullet image is not map-specific
+stone_small_image = None
+stone_big_image = None
+bush_image = None
 
-background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
-bullet_image = load_image(BULLET_IMAGE_PATH, (10, 10))
-stone_image = load_image(STONE_IMAGE_PATH, STONE_SIZE)
-bush_image = load_image(BUSH_IMAGE_PATH, BUSH_SIZE)
 game_icon = load_image(GAME_ICON_PATH)
 if game_icon:
     pygame.display.set_icon(game_icon)
@@ -51,22 +53,43 @@ clock = pygame.time.Clock()
 
 all_sprites = pygame.sprite.Group()
 stone_group = pygame.sprite.Group()
-if stone_image:
-    for pos_x, pos_y in chosen_map["stone_positions"]:
-        stone_group.add(Stone(pos_x, pos_y, stone_image))
-all_sprites.add(stone_group)
-
 bush_group = pygame.sprite.Group()
-if bush_image:
+obstacles = pygame.sprite.Group()
+
+
+def _switch_map_assets(map_name):
+    global background_image, stone_small_image, stone_big_image, bush_image, obstacles
+
+    settings.CURRENT_MAP_SETTING_NAME = map_name
+    chosen_map = MAP_SETTINGS[settings.CURRENT_MAP_SETTING_NAME]
+
+    background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
+    stone_small_image = load_image(chosen_map["small_stone_image_path"], STONE_SIZE_SMALL)
+    stone_big_image = load_image(chosen_map["big_stone_image_path"], STONE_SIZE_BIG)
+    bush_image = load_image(chosen_map["bush_image_path"], BUSH_SIZE)
+
+    stone_group.empty()
+    bush_group.empty()
+
+    for pos_x, pos_y, stone_type in chosen_map["stone_positions"]:
+        if stone_type == "small":
+            stone_group.add(Stone(pos_x, pos_y, stone_small_image))
+        elif stone_type == "big":
+            stone_group.add(Stone(pos_x, pos_y, stone_big_image))
+
     for pos_x, pos_y in chosen_map["bush_positions"]:
         bush_group.add(Bush(pos_x, pos_y, bush_image))
 
+    obstacles = pygame.sprite.Group(stone_group, bush_group)
 
-player_rect = frame_left.get_rect()
-screen_rect = screen.get_rect()
+    all_sprites.empty()
+    all_sprites.add(stone_group, bush_group)
+    if 'player1' in globals() and 'player2' in globals():
+        all_sprites.add(player1, player2)
 
-player1_start_x, player1_start_y = no_collision(random_player1_start_position, bush_group)
-player2_start_x, player2_start_y = no_collision(random_player2_start_position, bush_group)
+
+player1_start_x, player1_start_y = no_collision(random_player1_start_position, obstacles)
+player2_start_x, player2_start_y = no_collision(random_player2_start_position, obstacles)
 
 player1_controls = {
     'up': pygame.K_w,
@@ -86,14 +109,9 @@ player2_controls = {
 }
 player2 = Player(player2_start_x, player2_start_y, player2_controls, "Player 2", player_animation_frames)
 
-all_sprites.add(player1, player2)
+_switch_map_assets(settings.CURRENT_MAP_SETTING_NAME)
 
 bullets = pygame.sprite.Group()
-
-stone_group = pygame.sprite.Group()
-if stone_image:
-    for pos_x, pos_y in chosen_map["stone_positions"]:
-        stone_group.add(Stone(pos_x, pos_y, stone_image))
 
 font = pygame.font.Font(None, 36)
 
@@ -105,12 +123,12 @@ maps_menu = False
 winner_text = ""
 selected_index = 0  # aktuálně vybraná položka v menu
 
-start_time = pygame.time.get_ticks()  # <- čas spuštění hry
+start_time = pygame.time.get_ticks()
 
 
 while running:
     current_time = pygame.time.get_ticks()
-    
+
     # ÚVODNÍ SCREEN
     #**********************
     if game_start:
@@ -135,7 +153,7 @@ while running:
         screen.blit(background_image, (0, 0))
         menu_font = pygame.font.Font("fonts/PressStart2P.ttf", 24)
         menu_items = ["Hrát", "Výběr mapy", "Konec hry"]
-        menu_rects = []  # pro ukládání pozic jednotlivých položek
+        menu_rects = []
 
         mouse_pos = pygame.mouse.get_pos()
         mouse_clicked = False
@@ -143,23 +161,21 @@ while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            # FUNKCE menu pomocí kláves
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN: #= enter
-                    if selected_index == 0:
+                if event.key == pygame.K_RETURN:
+                    if selected_index == 0: # Hrát
                         game_menu = False
                         player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
                         player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
                         for bullet in bullets:
                             bullet.kill()
                         bullets.empty()
-                        stone_group.empty()
-                        for pos_x, pos_y in chosen_map["stone_positions"]:
-                            stone_group.add(Stone(pos_x, pos_y, stone_image))
-                    elif selected_index == 1:
+                        _switch_map_assets(settings.CURRENT_MAP_SETTING_NAME)
+
+                    elif selected_index == 1: # Výběr mapy
                         game_menu = False
                         maps_menu = True
-                    elif selected_index == 2:
+                    elif selected_index == 2: # Konec hry
                         running = False
                 elif event.key == pygame.K_UP:
                     selected_index = (selected_index - 1) % len(menu_items)
@@ -168,23 +184,26 @@ while running:
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_clicked = True
 
-        # FUNKCE menu pomocí myši
         for i, item in enumerate(menu_items):
             menu_text = menu_font.render(item, True, YELLOW if i == selected_index else WHITE)
             menu_rect = menu_text.get_rect(center=(SCREEN_WIDTH // 2, 100 + i * 60))
             menu_rects.append(menu_rect)
 
-            # detekce najetí myší
             if menu_rect.collidepoint(mouse_pos):
                 selected_index = i
                 if mouse_clicked:
-                    if i == 0:
+                    if i == 0: # Hrát
                         game_menu = False
-                    elif i == 1:
+                        player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+                        player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
+                        for bullet in bullets:
+                            bullet.kill()
+                        bullets.empty()
+                        _switch_map_assets(settings.CURRENT_MAP_SETTING_NAME)
+                    elif i == 1: # Výběr mapy
                         game_menu = False
                         maps_menu = True
-                        print("Výběr mapy zatím není implementován.")
-                    elif i == 2:
+                    elif i == 2: # Konec hry
                         running = False
 
             screen.blit(menu_text, menu_rect)
@@ -202,22 +221,24 @@ while running:
         map_font = pygame.font.Font("fonts/PressStart2P.ttf", 20)
         map_names = list(MAP_SETTINGS.keys()) + ["Back"]
 
-
         mouse_pos = pygame.mouse.get_pos()
         mouse_clicked = False
 
-        # pohyb v menu a ovládní menu
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE: # zpět na menu hry
-                    game_maps = False
+                if event.key == pygame.K_ESCAPE:
+                    maps_menu = False
                     game_menu = True
                 elif event.key == pygame.K_RETURN:
-                    CURRENT_MAP_SETTING_NAME = map_names[selected_index]
-                    game_maps = False
-                    game_menu = False
+                    if map_names[selected_index] == "Back":
+                        maps_menu = False
+                        game_menu = True
+                    else:
+                        _switch_map_assets(map_names[selected_index])
+                        maps_menu = False
+                        game_menu = True
                 elif event.key == pygame.K_UP:
                     selected_index = (selected_index - 1) % len(map_names)
                 elif event.key == pygame.K_DOWN:
@@ -231,29 +252,22 @@ while running:
             map_text = map_font.render(name, True, color)
             map_rect = map_text.get_rect(center=(SCREEN_WIDTH // 2, 100 + index * 50))
 
-            if map_rect.collidepoint(mouse_pos): # kurzor na této položce
+            if map_rect.collidepoint(mouse_pos):
                 selected_index = index
                 if mouse_clicked:
                     if name == "Back":
-                        game_maps = False
+                        maps_menu = False
                         game_menu = True
                     else:
-                        settings.CURRENT_MAP_SETTING_NAME = name
-
-                        # po kliknutí se uloží mapa jako current_map
-                        chosen_map = MAP_SETTINGS[settings.CURRENT_MAP_SETTING_NAME]
-                        background_image = load_image(chosen_map["background_image_path"], (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-                        # vymaže staré kameny a přidá nové, definované v právě vybrané mapě
-                        stone_group.empty()
-                        if stone_image:
-                            for pos_x, pos_y in chosen_map["stone_positions"]:
-                                stone_group.add(Stone(pos_x, pos_y, stone_image))
-
-                        game_maps = False
+                        _switch_map_assets(name)
+                        maps_menu = False
                         game_menu = True
 
             screen.blit(map_text, map_rect)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+        continue
 
     # GAME ITSELF:
     else:
@@ -333,16 +347,15 @@ while running:
             player2.health = 100
 
 
-            player1.rect.center = (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
-            player2.rect.center = (SCREEN_WIDTH * 3 // 4, SCREEN_HEIGHT // 2)
+            player1.rect.center = no_collision(random_player1_start_position, obstacles)
+            player2.rect.center = no_collision(random_player2_start_position, obstacles)
 
             for bullet in bullets:
                 bullet.kill()
             bullets.empty()
 
-            stone_group.empty()
-            for pos_x, pos_y in chosen_map["stone_positions"]:
-                stone_group.add(Stone(pos_x, pos_y, stone_image))
+            _switch_map_assets(settings.CURRENT_MAP_SETTING_NAME)
+
 
         if player1.animation_frames[player1.direction]:
             player1.current_frame_index = 0
