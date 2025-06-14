@@ -7,7 +7,7 @@ from settings import (
     PLAYER_SIZE, BULLET_IMAGE_PATH, GAME_ICON_PATH,
     BACKGROUND_IMAGE_PATH, player_animation_paths
 )
-from utils import load_image
+from utils import load_image, random_player1_start_position, random_player2_start_position
 from player import Player
 from bullet import Bullet
 
@@ -43,10 +43,11 @@ for i in range(1, 5):
 
 clock = pygame.time.Clock()
 
-player1_start_x = SCREEN_WIDTH // 4
-player1_start_y = SCREEN_HEIGHT // 2
-player2_start_x = SCREEN_WIDTH * 3 // 4
-player2_start_y = SCREEN_HEIGHT // 2
+player_rect = frame_left.get_rect()
+screen_rect = screen.get_rect()
+
+player1_start_x, player1_start_y = random_player1_start_position()
+player2_start_x, player2_start_y = random_player2_start_position()
 
 player1_controls = {
     'up': pygame.K_w,
