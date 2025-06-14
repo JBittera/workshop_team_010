@@ -13,6 +13,20 @@ def load_image(path, scale=None):
         print(f"Error loading image {path}: {e}")
         return None
 
+def load_frames_from_spritesheet(sheet_path, frame_width, frame_height, row_index, start_frame_column, num_frames):
+    sheet = load_image(sheet_path)
+    frames = []
+    if sheet:
+        for i in range(num_frames):
+            # Calculate the x-coordinate for the current frame
+            x_offset = (start_frame_column + i) * frame_width
+            y_offset = row_index * frame_height
+
+            frame = pygame.Surface((frame_width, frame_height), pygame.SRCALPHA)
+            frame.blit(sheet, (0, 0), (x_offset, y_offset, frame_width, frame_height))
+            frames.append(frame)
+    return frames
+
 def random_player1_start_position():
     x = random.randint(
         PLAYER_SIZE[0]//2 + BORDER_PADDING,

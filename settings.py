@@ -20,9 +20,25 @@ STONE_SIZE = (60, 60)
 STONE_SIZE_SMALL = (50, 50)
 STONE_SIZE_BIG = (100, 100)
 
-player_animation_paths = {
-    'left': "images/player_left/left{i}.png",
-    'right': "images/player_right/right{i}.png"
+PLAYER_FRAME_WIDTH = 59
+PLAYER_FRAME_HEIGHT = 82
+
+PLAYER1_SPRITESHEET_PATH = "images/player_sprites/player1_spritesheet.png"
+PLAYER2_SPRITESHEET_PATH = "images/player_sprites/player2_spritesheet.png"
+
+player_animation_data = {
+    'player1': {
+        'row': 0,
+        'left_start_frame': 3,
+        'right_start_frame': 9,
+        'num_frames': 3
+    },
+    'player2': {
+        'row': 0,
+        'left_start_frame': 3,
+        'right_start_frame': 9,
+        'num_frames': 3
+    }
 }
 
 BORDER_PADDING = 40
