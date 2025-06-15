@@ -5,6 +5,7 @@ from splash_screen import SplashScreen
 from main_menu_screen import MainMenuScreen
 from map_menu_screen import MapMenuScreen
 from game_screen import GameScreen
+from pause_menu_screen import PauseMenuScreen
 from settings import FPS, GAME_ICON_PATH, INITIAL_MAP_SETTING_NAME, SCREEN_HEIGHT, SCREEN_WIDTH
 from utils import load_image
 
@@ -27,6 +28,7 @@ class Game:
             "menu": MainMenuScreen(self),
             "map_menu": MapMenuScreen(self),
             "game": GameScreen(self),
+            "pause": PauseMenuScreen(self),
         }
         self.change_screen("splash")
 

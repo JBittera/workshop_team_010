@@ -145,24 +145,25 @@ class GameScreen(Screen):
         self.all_sprites.empty()
         self.all_sprites.add(self.player1, self.player2, self.stone_group, self.bush_group)
 
-
-
     def handle_event(self, event):
         current_time = pygame.time.get_ticks()
         if event.type == pygame.KEYDOWN:
             if not self.game_over:
-                if event.key == player1_controls['shoot']:
-                    bullet = self.player1.shoot(current_time, self.assets['bullet'])
-                    if bullet:
-                        self.assets['shoot_sound'].play()
-                        self.all_sprites.add(bullet)
-                        self.bullets.add(bullet)
-                if event.key == player2_controls['shoot']:
-                    bullet = self.player2.shoot(current_time, self.assets['bullet'])
-                    if bullet:
-                        self.assets['shoot_sound'].play()
-                        self.all_sprites.add(bullet)
-                        self.bullets.add(bullet)
+                if event.key == pygame.K_ESCAPE:
+                    self.game.change_screen("pause", reset=False)
+                else:
+                    if event.key == player1_controls['shoot']:
+                        bullet = self.player1.shoot(current_time, self.assets['bullet'])
+                        if bullet:
+                            self.assets['shoot_sound'].play()
+                            self.all_sprites.add(bullet)
+                            self.bullets.add(bullet)
+                    if event.key == player2_controls['shoot']:
+                        bullet = self.player2.shoot(current_time, self.assets['bullet'])
+                        if bullet:
+                            self.assets['shoot_sound'].play()
+                            self.all_sprites.add(bullet)
+                            self.bullets.add(bullet)
         elif event.type == NEW_BOX_EVENT:
             self.box = Box(self.assets['box'], self.all_sprites)
 
