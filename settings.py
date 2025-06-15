@@ -25,8 +25,10 @@ STONE_SIZE_BIG = (100, 100)
 PLAYER_FRAME_WIDTH = 59
 PLAYER_FRAME_HEIGHT = 82
 
-PLAYER1_SPRITESHEET_PATH = "images/player_sprites/player1_spritesheet.png"
-PLAYER2_SPRITESHEET_PATH = "images/player_sprites/player2_spritesheet.png"
+SPRITESHEET_PATH = {
+    "player1": "images/player_sprites/player1_spritesheet.png",
+    "player2": "images/player_sprites/player2_spritesheet.png"
+}
 
 player_animation_data = {
     'player1': {
@@ -58,4 +60,4 @@ BOX_SPAWN_DELAY = 3000
 
 BULLET_SPEED = 10
 
-CURRENT_MAP_SETTING_NAME = "Deadwood"
+INITIAL_MAP_SETTING_NAME = "Deadwood"
