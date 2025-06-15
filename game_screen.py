@@ -73,6 +73,8 @@ class GameScreen(Screen):
 
         self.player1.health = 100
         self.player2.health = 100
+        self.player1.bullets_count = 10
+        self.player2.bullets_count = 10
         self.player1.rect.center = no_collision(random_player1_start_position, self.objects)
         self.player2.rect.center = no_collision(random_player2_start_position, self.objects)
 
