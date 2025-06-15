@@ -19,7 +19,8 @@ MAP_SETTINGS = {
         "bullet_image_path": "images/maps/map_1/bullet/bullet.png",
         "map_music_path": "images/maps/map_1/music/University.mp3",
         "shoot_sound_path": "images/maps/map_1/music/shoot_map1.mp3",
-        "rock_hit_sound_path": "images/maps/map_1/music/rockshoot_map1.mp3"
+        "rock_hit_sound_path": "images/maps/map_1/music/rockshoot_map1.mp3",
+        "map_tiles_path": "images/maps/map_1/objects/map_tiles.png"
     },
     "Deadwood": {
         "background_image_path": "images/maps/map_2/map/background.png",
@@ -40,7 +41,8 @@ MAP_SETTINGS = {
         "bullet_image_path": "images/maps/map_2/bullet/bullet.png",
         "map_music_path": "images/maps/map_2/music/Deadwood.mp3",
         "shoot_sound_path": "images/maps/map_2/music/shoot_map2.mp3",
-        "rock_hit_sound_path": "images/maps/map_2/music/rockshoot_map2.mp3"
+        "rock_hit_sound_path": "images/maps/map_2/music/rockshoot_map2.mp3",
+        "map_tiles_path": "images/maps/map_2/objects/map_tiles.png"
     },
     "Cyberpark": {
         "background_image_path": "images/maps/map_3/map/background.png",
@@ -61,6 +63,7 @@ MAP_SETTINGS = {
         "bullet_image_path": "images/maps/map_3/bullet/bullet.png",
         "map_music_path": "images/maps/map_3/music/Cyberpark.mp3",
         "shoot_sound_path": "images/maps/map_3/music/shoot_map3.mp3",
-        "rock_hit_sound_path": "images/maps/map_3/music/rockshoot_map3.mp3"
+        "rock_hit_sound_path": "images/maps/map_3/music/rockshoot_map3.mp3",
+        "map_tiles_path": "images/maps/map_3/objects/map_tiles.png"
     }
 }

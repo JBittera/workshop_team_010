@@ -17,6 +17,11 @@ player2_controls = {
     'up': pygame.K_UP, 'down': pygame.K_DOWN, 'left': pygame.K_LEFT, 'right': pygame.K_RIGHT, 'shoot': pygame.K_RSHIFT
 }
 
+def get_tile(sheet, x, y, width, height):
+    tile = pygame.Surface((width, height), pygame.SRCALPHA)
+    tile.blit(sheet, (0, 0), (x, y, width, height))
+    return tile
+
 class GameScreen(Screen):
     def __init__(self, game):
         super().__init__(game)
@@ -120,9 +125,17 @@ class GameScreen(Screen):
             'rock_hit_sound': rock_hit_sound,
         })
 
-        stone_small_image = load_image(chosen_map["small_stone_image_path"], STONE_SIZE_SMALL)
-        stone_big_image = load_image(chosen_map["big_stone_image_path"], STONE_SIZE_BIG)
-        bush_image = load_image(chosen_map["bush_image_path"], BUSH_SIZE)
+        tile_rects = {
+            "big_rock": (0, 0, 140, 140),
+            "bush": (140, 0, 140, 140),
+            "small_rock": (280, 0, 60, 60)
+        }
+
+        static_tiles = load_image(chosen_map["map_tiles_path"], (340, 140))
+
+        stone_small_image = get_tile(static_tiles, *tile_rects['small_rock'])
+        stone_big_image = get_tile(static_tiles, *tile_rects['big_rock'])
+        bush_image = get_tile(static_tiles, *tile_rects['bush'])
 
         self.stone_group.empty()
         self.bush_group.empty()
