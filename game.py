@@ -16,7 +16,6 @@ class Game:
         game_icon = load_image(GAME_ICON_PATH)
         if game_icon:
             pygame.display.set_icon(game_icon)
-        pygame.mixer.music.load("music/main_menu.ogg")
         self.change_map(INITIAL_MAP_SETTING_NAME)
 
         self.running = True

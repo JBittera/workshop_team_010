@@ -9,8 +9,6 @@ class SplashScreen(Screen):
     def __init__(self, game):
         super().__init__(game)
         self.start_time = pygame.time.get_ticks()
-        pygame.mixer.music.set_volume(0.5)
-        pygame.mixer.music.play(-1)
 
     def draw(self, surface):
         current_time = pygame.time.get_ticks()
@@ -23,3 +21,9 @@ class SplashScreen(Screen):
 
         if current_time - self.start_time >= SPLASH_SCREEN_DURATION:
             self.game.change_screen("menu")
+
+    def reset(self):
+        pygame.mixer.music.load("music/main_menu.ogg")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+        return super().reset()

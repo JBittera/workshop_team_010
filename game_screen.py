@@ -50,7 +50,6 @@ class GameScreen(Screen):
         self.player1 = Player(0, 0, player1_controls, "Player 1", self.assets['player1_animation_frames'])
         self.player2 = Player(0, 0, player2_controls, "Player 2", self.assets['player2_animation_frames'])
 
-
         self.all_sprites = pygame.sprite.Group()
         self.stone_group = pygame.sprite.Group()
         self.bush_group = pygame.sprite.Group()
@@ -89,7 +88,6 @@ class GameScreen(Screen):
             self.player2.current_frame_index = 0
             self.player2.direction = 'down'
             self.player2.image = self.player2.animation_frames[self.player2.direction][self.player2.current_frame_index]
-
 
         self.box = Box(self.assets['box'], self.all_sprites)
 
